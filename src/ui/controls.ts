@@ -7,6 +7,17 @@ export interface ControlActions {
   onProjection(): void;
 }
 
+export function formatDisplayedTime(date: Date): string {
+  return date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
+export function updateTimeControls(root: ParentNode, state: Pick<AppState, "now" | "offsetHours">): void {
+  const display = root.querySelector<HTMLTimeElement>("[data-time-display]");
+  const slider = root.querySelector<HTMLInputElement>("[data-time-slider]");
+  if (display) display.textContent = formatDisplayedTime(state.now);
+  if (slider) slider.value = String(state.offsetHours);
+}
+
 export function createControls(state: AppState, actions: ControlActions): HTMLElement {
   const shell = document.createElement("aside"); shell.id = "controls";
   shell.className = state.controlsVisible ? "" : "hidden";
@@ -14,8 +25,9 @@ export function createControls(state: AppState, actions: ControlActions): HTMLEl
   title.innerHTML = `<div><p class="eyebrow">RIYADH · LIVE SKY</p><h1>Ceiling Sky</h1></div>`;
   shell.append(title);
   const time = document.createElement("section"); time.className = "time-panel";
-  const display = document.createElement("time"); display.textContent = state.now.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  const display = document.createElement("time"); display.dataset.timeDisplay = ""; display.textContent = formatDisplayedTime(state.now);
   const slider = document.createElement("input"); slider.type = "range"; slider.min = "-6"; slider.max = "6"; slider.step = "0.05"; slider.value = String(state.offsetHours);
+  slider.dataset.timeSlider = "";
   slider.setAttribute("aria-label", "Time offset in hours"); slider.addEventListener("input", () => actions.onOffset(Number(slider.value)));
   const buttons = document.createElement("div"); buttons.className = "button-row";
   const now = button("Now", actions.onResetTime); const play = button(state.playing ? "Pause" : "Play", actions.onTogglePlay);

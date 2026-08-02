@@ -5,7 +5,7 @@ import { cygnus } from "./catalog/constellations";
 import { renderSky, projectStars } from "./rendering/skyRenderer";
 import { createAppState } from "./state/appState";
 import { loadCalibration, saveCalibration } from "./storage/settings";
-import { createControls, type ControlActions } from "./ui/controls";
+import { createControls, updateTimeControls, type ControlActions } from "./ui/controls";
 import type { AppState, Calibration } from "./types";
 
 function requiredElement<T extends Element>(selector: string): T {
@@ -36,7 +36,10 @@ function notify(message: string): void { state.message = message; mountControls(
 
 const actions: ControlActions = {
   onResetTime: () => { const now = new Date(); state = { ...state, now, anchorTime: new Date(now), offsetHours: 0, playing: false }; mountControls(); },
-  onOffset: (hours) => { state = { ...state, offsetHours: hours, now: dateAtOffset(state.anchorTime, hours) }; mountControls(); },
+  onOffset: (hours) => {
+    state = { ...state, offsetHours: hours, now: dateAtOffset(state.anchorTime, hours) };
+    updateTimeControls(app, state);
+  },
   onTogglePlay: () => patch({ playing: !state.playing }),
   onPatch: patch,
   onCalibration: (calibration: Calibration) => { state.calibration = calibration; const error = saveCalibration(calibration); if (error) notify(error); },
@@ -69,6 +72,7 @@ function frame(timestamp: number): void {
   if (state.playing) {
     const advanced = advanceTime(state.now, state.offsetHours, deltaSeconds);
     state.now = advanced.date; state.offsetHours = advanced.offsetHours;
+    updateTimeControls(app, state);
     if (advanced.reachedBoundary) { state.playing = false; mountControls(); }
   }
   const projected = projectStars(stars, state.now, cssWidth, cssHeight, state.calibration);
