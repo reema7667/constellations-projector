@@ -1,0 +1,22 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #000; color: #eaf5ff; }
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
+button, input { font: inherit; }
+#sky { position: fixed; inset: 0; display: block; background: #000; }
+#controls { position: fixed; z-index: 2; top: 18px; left: 18px; width: min(340px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; padding: 18px; border: 1px solid rgba(143, 211, 255, .22); border-radius: 18px; background: rgba(4, 12, 20, .88); backdrop-filter: blur(18px); box-shadow: 0 18px 70px rgba(0,0,0,.55); transition: opacity .2s, transform .2s; }
+#controls.hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
+h1, h2, p { margin: 0; } h1 { font-size: 24px; font-weight: 650; } h2 { font-size: 14px; margin-bottom: 4px; }
+.eyebrow { color: #6ecbff; font-size: 10px; letter-spacing: .18em; margin-bottom: 3px; }
+section { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
+.time-panel time { display: block; font-variant-numeric: tabular-nums; margin-bottom: 10px; }
+input[type="range"] { width: 100%; accent-color: #62caff; }
+.button-row { display: flex; gap: 8px; margin-top: 10px; }
+button { border: 1px solid rgba(143,211,255,.28); border-radius: 9px; padding: 7px 11px; color: #eff9ff; background: rgba(42,117,155,.22); cursor: pointer; }
+button:hover { background: rgba(62,153,201,.3); }
+.check-row { display: flex; align-items: center; gap: 9px; margin: 8px 0; font-size: 13px; }
+.range-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; margin: 10px 0; font-size: 12px; }
+.range-row input { grid-column: 1 / -1; }.range-row output { color: #7dd3fc; font-variant-numeric: tabular-nums; }
+.hint, footer { color: #8fa6b5; font-size: 11px; }.calibration-panel button { margin-top: 8px; }
+footer { margin-top: 16px; } #message { position: fixed; z-index: 5; right: 18px; bottom: 18px; max-width: 380px; padding: 12px 16px; border-radius: 10px; background: #172531; color: #dff4ff; box-shadow: 0 8px 30px #000; }
+body.projection { cursor: default; }
+@media (max-width: 560px) { #controls { top: 10px; left: 10px; width: calc(100vw - 20px); max-height: calc(100vh - 20px); } }
