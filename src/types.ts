@@ -38,6 +38,7 @@ export interface AppState {
   offsetHours: number;
   playing: boolean;
   showLabels: boolean;
+  showConstellationLines: boolean;
   dimContext: boolean;
   calibrationMode: boolean;
   projectionMode: boolean;

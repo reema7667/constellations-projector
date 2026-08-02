@@ -22,6 +22,7 @@ export function createControls(state: AppState, actions: ControlActions): HTMLEl
   buttons.append(now, play); time.append(display, slider, buttons); shell.append(time);
   const toggles = document.createElement("section"); toggles.className = "toggle-panel";
   toggles.append(
+    checkbox("Constellation lines", state.showConstellationLines, (checked) => actions.onPatch({ showConstellationLines: checked })),
     checkbox("Star labels", state.showLabels, (checked) => actions.onPatch({ showLabels: checked })),
     checkbox("Dim unrelated stars", state.dimContext, (checked) => actions.onPatch({ dimContext: checked })),
     checkbox("Calibration overlay", state.calibrationMode, (checked) => actions.onPatch({ calibrationMode: checked })),

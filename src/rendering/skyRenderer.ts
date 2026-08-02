@@ -57,13 +57,15 @@ function drawCalibrationOverlay(ctx: CanvasRenderingContext2D, width: number, he
 
 export function renderSky(
   ctx: CanvasRenderingContext2D, width: number, height: number, projectedStars: readonly ProjectedStar[], constellation: Constellation,
-  options: { showLabels: boolean; dimContext: boolean; calibrationMode: boolean; calibration: Calibration },
+  options: { showLabels: boolean; showConstellationLines: boolean; dimContext: boolean; calibrationMode: boolean; calibration: Calibration },
 ): void {
   ctx.fillStyle = theme.background; ctx.fillRect(0, 0, width, height);
   const byId = new Map(projectedStars.map((star) => [star.star.id, star]));
-  ctx.strokeStyle = theme.line; ctx.lineWidth = 1.4;
-  for (const [from, to] of visibleEdges(constellation, byId)) {
-    ctx.beginPath(); ctx.moveTo(from.point.x, from.point.y); ctx.lineTo(to.point.x, to.point.y); ctx.stroke();
+  if (options.showConstellationLines) {
+    ctx.strokeStyle = theme.line; ctx.lineWidth = 1.4;
+    for (const [from, to] of visibleEdges(constellation, byId)) {
+      ctx.beginPath(); ctx.moveTo(from.point.x, from.point.y); ctx.lineTo(to.point.x, to.point.y); ctx.stroke();
+    }
   }
   for (const item of projectedStars) {
     if (!item.point.visible) continue;
