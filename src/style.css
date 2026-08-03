@@ -9,6 +9,9 @@ h1, h2, p { margin: 0; } h1 { font-size: 24px; font-weight: 650; } h2 { font-siz
 .eyebrow { color: #6ecbff; font-size: 10px; letter-spacing: .18em; margin-bottom: 3px; }
 section { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
 .time-panel time { display: block; font-variant-numeric: tabular-nums; margin-bottom: 10px; }
+.replay-ranges { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.replay-ranges button { font-size: 12px; }
+.replay-ranges button.active { border-color: #62caff; background: rgba(62,153,201,.42); }
 input[type="range"] { width: 100%; accent-color: #62caff; }
 .button-row { display: flex; gap: 8px; margin-top: 10px; }
 button { border: 1px solid rgba(143,211,255,.28); border-radius: 9px; padding: 7px 11px; color: #eff9ff; background: rgba(42,117,155,.22); cursor: pointer; }

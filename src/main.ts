@@ -1,12 +1,12 @@
 import "./style.css";
-import { dateAtOffset, advanceTime } from "./astronomy/time";
+import { dateAtOffset, advanceTime, replayDurationHours, replayWindow } from "./astronomy/time";
 import { stars } from "./catalog/stars";
 import { cygnus } from "./catalog/constellations";
 import { renderSky, projectStars } from "./rendering/skyRenderer";
 import { createAppState } from "./state/appState";
 import { loadCalibration, saveCalibration } from "./storage/settings";
 import { createControls, updateTimeControls, type ControlActions } from "./ui/controls";
-import type { AppState, Calibration } from "./types";
+import type { AppState, Calibration, ReplayRange } from "./types";
 
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -35,7 +35,20 @@ function patch(update: Partial<AppState>): void { state = { ...state, ...update 
 function notify(message: string): void { state.message = message; mountControls(); window.setTimeout(() => { if (state.message === message) patch({ message: null }); }, 5000); }
 
 const actions: ControlActions = {
-  onResetTime: () => { const now = new Date(); state = { ...state, now, anchorTime: new Date(now), offsetHours: 0, playing: false }; mountControls(); },
+  onResetTime: () => { state = { ...state, now: state.anchorTime, offsetHours: 0, playing: false }; mountControls(); },
+  onReplayRange: (range: ReplayRange) => {
+    const selected = replayWindow(new Date(), range);
+    state = {
+      ...state,
+      now: selected.start,
+      anchorTime: selected.start,
+      offsetHours: 0,
+      playing: false,
+      replayRange: range,
+      replayEnd: selected.end,
+    };
+    mountControls();
+  },
   onOffset: (hours) => {
     state = { ...state, offsetHours: hours, now: dateAtOffset(state.anchorTime, hours) };
     updateTimeControls(app, state);
@@ -70,7 +83,8 @@ window.addEventListener("resize", resize); resize(); mountControls();
 function frame(timestamp: number): void {
   const deltaSeconds = Math.min((timestamp - previousFrame) / 1000, 0.25); previousFrame = timestamp;
   if (state.playing) {
-    const advanced = advanceTime(state.now, state.offsetHours, deltaSeconds);
+    const limitHours = replayDurationHours({ start: state.anchorTime, end: state.replayEnd });
+    const advanced = advanceTime(state.now, state.offsetHours, deltaSeconds, limitHours);
     state.now = advanced.date; state.offsetHours = advanced.offsetHours;
     updateTimeControls(app, state);
     if (advanced.reachedBoundary) { state.playing = false; mountControls(); }

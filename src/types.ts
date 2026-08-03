@@ -32,11 +32,20 @@ export interface Calibration {
   horizonScale: number;
 }
 
+export type ReplayRange = "night" | "day";
+
+export interface ReplayWindow {
+  start: Date;
+  end: Date;
+}
+
 export interface AppState {
   now: Date;
   anchorTime: Date;
   offsetHours: number;
   playing: boolean;
+  replayRange: ReplayRange;
+  replayEnd: Date;
   showLabels: boolean;
   showConstellationLines: boolean;
   dimContext: boolean;
