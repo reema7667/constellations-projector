@@ -56,12 +56,13 @@ function drawCalibrationOverlay(ctx: CanvasRenderingContext2D, width: number, he
 }
 
 export function renderSky(
-  ctx: CanvasRenderingContext2D, width: number, height: number, projectedStars: readonly ProjectedStar[], constellation: Constellation,
+  ctx: CanvasRenderingContext2D, width: number, height: number, projectedStars: readonly ProjectedStar[], constellation: Constellation | null,
   options: { showLabels: boolean; showConstellationLines: boolean; dimContext: boolean; calibrationMode: boolean; calibration: Calibration },
 ): void {
   ctx.fillStyle = theme.background; ctx.fillRect(0, 0, width, height);
   const byId = new Map(projectedStars.map((star) => [star.star.id, star]));
-  if (options.showConstellationLines) {
+  const memberIds = new Set(constellation?.starIds ?? []);
+  if (constellation && options.showConstellationLines) {
     ctx.strokeStyle = theme.line; ctx.lineWidth = 1.4;
     for (const [from, to] of visibleEdges(constellation, byId)) {
       ctx.beginPath(); ctx.moveTo(from.point.x, from.point.y); ctx.lineTo(to.point.x, to.point.y); ctx.stroke();
@@ -69,16 +70,16 @@ export function renderSky(
   }
   for (const item of projectedStars) {
     if (!item.point.visible) continue;
-    const inConstellation = item.star.constellationId === constellation.id;
-    ctx.fillStyle = inConstellation ? theme.cygnus : options.dimContext ? theme.dimmed : theme.context;
+    const inConstellation = memberIds.has(item.star.id);
+    ctx.fillStyle = inConstellation ? theme.focused : constellation && options.dimContext ? theme.dimmed : theme.context;
     const radius = Math.max(1.2, 4.8 - item.star.magnitude * 0.85);
     ctx.beginPath(); ctx.arc(item.point.x, item.point.y, radius, 0, Math.PI * 2); ctx.fill();
     if (options.showLabels && inConstellation) {
       ctx.font = "12px system-ui"; ctx.textAlign = "left"; ctx.fillText(item.star.name, item.point.x + 8, item.point.y - 7);
     }
   }
-  const label = byId.get(constellation.labelStarId);
-  if (options.showLabels && label?.point.visible) {
+  const label = constellation ? byId.get(constellation.labelStarId) : undefined;
+  if (constellation && options.showLabels && label?.point.visible) {
     ctx.fillStyle = theme.line; ctx.font = "600 15px system-ui"; ctx.textAlign = "center";
     ctx.fillText(constellation.name, label.point.x, label.point.y + 28);
   }

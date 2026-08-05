@@ -12,3 +12,5 @@ export const cygnus: Constellation = {
   ],
   labelStarId: "sadr",
 };
+
+export const constellations: readonly Constellation[] = [cygnus];
