@@ -14,3 +14,8 @@ export const cygnus: Constellation = {
 };
 
 export const constellations: readonly Constellation[] = [cygnus];
+
+export function resolveConstellation(id: string | null): Constellation | null {
+  if (id === null) return null;
+  return constellations.find((constellation) => constellation.id === id) ?? null;
+}

@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Use the ±6 hour slider to explore the night, **Play** to advance at 12 simulated minutes per real second, and **Now** to return to current time. Playback pauses at the slider’s upper boundary. Toggle labels or dim contextual stars to focus on Cygnus.
+The app opens in an unfocused sky overview with constellation lines off. Choose **Cygnus · Northern Cross** from the constellation selector to brighten its five-star pattern and dim unrelated stars; lines remain available as an optional guide. Use the dusk-to-dawn or 24-hour slider to explore time, **Play** to advance at 12 simulated minutes per real second, and **Restart** to return to the active range's beginning. Playback pauses at the slider’s upper boundary.
 
 Turn on **Calibration overlay**, align its N direction with the room’s north wall, then adjust rotation, scale, normalized X/Y offsets, optional projector mirrors, and horizon size. Settings persist in local storage under `ceilingSky.calibration`; **Reset identity** restores neutral projector calibration. If storage is unavailable, the current calibration continues in memory and a message is shown.
 

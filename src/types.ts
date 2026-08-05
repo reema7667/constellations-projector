@@ -46,6 +46,7 @@ export interface AppState {
   playing: boolean;
   replayRange: ReplayRange;
   replayEnd: Date;
+  selectedConstellationId: string | null;
   showLabels: boolean;
   showConstellationLines: boolean;
   dimContext: boolean;

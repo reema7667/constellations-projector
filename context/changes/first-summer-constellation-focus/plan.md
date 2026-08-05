@@ -113,7 +113,7 @@ Follow research option 2: introduce the minimum generic single-selection seam ar
 | Phase | Status | Verified by |
 |---|---|---|
 | 1 — Canonical nullable focus renderer | done | `npm run test:run -- src/catalog/constellations.test.ts src/rendering/skyRenderer.test.ts src/rendering/projection.test.ts` (15/15); `npm run build` |
-| 2 — Overview-first state and controls | todo | |
+| 2 — Overview-first state and controls | automated done; manual pending | `npm run test:run -- src/catalog/constellations.test.ts src/state/appState.test.ts src/ui/controls.test.ts src/rendering/skyRenderer.test.ts` (13/13); `npm run test:run` (29/29); `npm run build` |
 
 ## Plan review amendments
 

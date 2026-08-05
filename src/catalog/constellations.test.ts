@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Constellation, Star } from "../types";
-import { constellations, cygnus } from "./constellations";
+import { constellations, cygnus, resolveConstellation } from "./constellations";
 import { stars } from "./stars";
 
 function catalogueIssues(catalogue: readonly Constellation[], starCatalogue: readonly Star[]): string[] {
@@ -76,5 +76,13 @@ describe("constellation catalogue integrity", () => {
       "test: member member is tagged unassigned",
       "tagged: tagged test but absent from its members",
     ]);
+  });
+});
+
+describe("constellation resolution", () => {
+  it("resolves known IDs and degrades overview or stale IDs to no focus", () => {
+    expect(resolveConstellation("cygnus")).toBe(cygnus);
+    expect(resolveConstellation(null)).toBeNull();
+    expect(resolveConstellation("stale-id")).toBeNull();
   });
 });

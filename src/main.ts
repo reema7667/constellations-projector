@@ -1,9 +1,9 @@
 import "./style.css";
 import { dateAtOffset, advanceTime, replayDurationHours, replayWindow } from "./astronomy/time";
 import { stars } from "./catalog/stars";
-import { cygnus } from "./catalog/constellations";
+import { constellations, resolveConstellation } from "./catalog/constellations";
 import { renderSky, projectStars } from "./rendering/skyRenderer";
-import { createAppState } from "./state/appState";
+import { constellationSelectionPatch, createAppState } from "./state/appState";
 import { loadCalibration, saveCalibration } from "./storage/settings";
 import { createControls, updateTimeControls, type ControlActions } from "./ui/controls";
 import type { AppState, Calibration, ReplayRange } from "./types";
@@ -54,6 +54,7 @@ const actions: ControlActions = {
     updateTimeControls(app, state);
   },
   onTogglePlay: () => patch({ playing: !state.playing }),
+  onConstellation: (id) => patch(constellationSelectionPatch(id)),
   onPatch: patch,
   onCalibration: (calibration: Calibration) => { state.calibration = calibration; const error = saveCalibration(calibration); if (error) notify(error); },
   onProjection: async () => {
@@ -64,7 +65,7 @@ const actions: ControlActions = {
 };
 
 function mountControls(): void {
-  app.replaceChildren(createControls(state, actions));
+  app.replaceChildren(createControls(state, constellations, actions));
   let toast = document.querySelector<HTMLDivElement>("#message");
   if (state.message) { if (!toast) { toast = document.createElement("div"); toast.id = "message"; document.body.append(toast); } toast.textContent = state.message; }
   else toast?.remove();
@@ -90,7 +91,7 @@ function frame(timestamp: number): void {
     if (advanced.reachedBoundary) { state.playing = false; mountControls(); }
   }
   const projected = projectStars(stars, state.now, cssWidth, cssHeight, state.calibration);
-  renderSky(context, cssWidth, cssHeight, projected, cygnus, state);
+  renderSky(context, cssWidth, cssHeight, projected, resolveConstellation(state.selectedConstellationId), state);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
