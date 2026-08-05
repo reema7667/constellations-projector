@@ -41,6 +41,8 @@ describe("constellation control model", () => {
       options: [
         { value: "", label: "Sky overview" },
         { value: "cygnus", label: "Cygnus · Northern Cross" },
+        { value: "scorpius", label: "Scorpius" },
+        { value: "sagittarius", label: "Sagittarius · Teapot" },
       ],
       dimContextDisabled: true,
     });
@@ -53,6 +55,8 @@ describe("constellation control model", () => {
     });
     expect(constellationIdFromControlValue("")).toBeNull();
     expect(constellationIdFromControlValue("cygnus")).toBe("cygnus");
+    expect(constellationIdFromControlValue("scorpius")).toBe("scorpius");
+    expect(constellationIdFromControlValue("sagittarius")).toBe("sagittarius");
   });
 
   it("treats a stale selected ID as overview", () => {

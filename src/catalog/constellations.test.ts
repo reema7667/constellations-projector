@@ -1,11 +1,28 @@
+import { Body, SearchAltitude } from "astronomy-engine";
 import { describe, expect, it } from "vitest";
+import { starToHorizontal } from "../astronomy/coordinates";
+import { astronomyObserver } from "../astronomy/observer";
 import type { Constellation, Star } from "../types";
-import { constellations, cygnus, resolveConstellation } from "./constellations";
+import { constellations, cygnus, resolveConstellation, sagittarius, scorpius } from "./constellations";
 import { stars } from "./stars";
+
+function duplicates(values: readonly string[]): string[] {
+  return [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
+}
 
 function catalogueIssues(catalogue: readonly Constellation[], starCatalogue: readonly Star[]): string[] {
   const starIds = new Set(starCatalogue.map((star) => star.id));
-  const issues: string[] = [];
+  const issues = duplicates(starCatalogue.map((star) => star.id)).map((id) => `duplicate star ID ${id}`);
+  issues.push(...duplicates(catalogue.map((constellation) => constellation.id)).map((id) => `duplicate constellation ID ${id}`));
+
+  for (const star of starCatalogue) {
+    if (![star.raHours, star.declinationDegrees, star.magnitude].every(Number.isFinite)) {
+      issues.push(`${star.id}: non-finite astronomical value`);
+    }
+    if (star.raHours < 0 || star.raHours >= 24) issues.push(`${star.id}: RA outside [0,24)`);
+    if (star.declinationDegrees < -90 || star.declinationDegrees > 90) issues.push(`${star.id}: declination outside [-90,90]`);
+  }
+
   for (const constellation of catalogue) {
     for (const id of constellation.starIds) {
       if (!starIds.has(id)) issues.push(`${constellation.id}: unknown member ${id}`);
@@ -22,6 +39,7 @@ function catalogueIssues(catalogue: readonly Constellation[], starCatalogue: rea
       issues.push(`${constellation.id}: label anchor is not a member ${constellation.labelStarId}`);
     }
   }
+
   const byConstellationId = new Map(catalogue.map((constellation) => [constellation.id, constellation]));
   for (const star of starCatalogue) {
     if (!star.constellationId) continue;
@@ -32,56 +50,92 @@ function catalogueIssues(catalogue: readonly Constellation[], starCatalogue: rea
   return issues;
 }
 
+function visibilityIssues(catalogue: readonly Constellation[], starCatalogue: readonly Star[]): string[] {
+  const byId = new Map(starCatalogue.map((star) => [star.id, star]));
+  const issues: string[] = [];
+
+  for (const month of [6, 7, 8, 9]) {
+    const monthText = String(month).padStart(2, "0");
+    const afternoon = new Date(`2026-${monthText}-15T12:00:00+03:00`);
+    const midnight = new Date(`2026-${monthText}-16T00:00:00+03:00`);
+    const dusk = SearchAltitude(Body.Sun, astronomyObserver(), -1, afternoon, 1, -18);
+    if (!dusk) throw new Error(`No astronomical dusk found for ${monthText}`);
+
+    for (const constellation of catalogue) {
+      const members = constellation.starIds.map((id) => byId.get(id)).filter((star): star is Star => Boolean(star));
+      let hasSharedWindow = false;
+      for (let time = dusk.date.getTime(); time <= midnight.getTime(); time += 15 * 60 * 1000) {
+        const date = new Date(time);
+        if (members.length === constellation.starIds.length && members.every((star) => starToHorizontal(star, date).altitudeDegrees >= 10)) {
+          hasSharedWindow = true;
+          break;
+        }
+      }
+      if (!hasSharedWindow) issues.push(`${constellation.id}: no shared >=10° window in ${monthText}`);
+    }
+  }
+  return issues;
+}
+
 describe("constellation catalogue integrity", () => {
-  it("keeps every Cygnus member, edge endpoint, and label anchor resolvable", () => {
-    expect(constellations).toEqual([cygnus]);
+  it("keeps the interim learning order and all production references valid", () => {
+    expect(constellations).toEqual([cygnus, scorpius, sagittarius]);
     expect(catalogueIssues(constellations, stars)).toEqual([]);
   });
 
-  it("reports unknown members and invalid drawing references", () => {
-    const invalid: Constellation = {
-      id: "invalid",
-      name: "Invalid",
-      starIds: ["missing"],
-      edges: [["missing", "also-missing"]],
-      labelStarId: "label-missing",
+  it("reports malformed values, duplicate IDs, and invalid drawing references", () => {
+    const fixtureStars: Star[] = [
+      { id: "member", name: "Member", raHours: 24, declinationDegrees: -91, magnitude: Number.NaN, constellationId: "test" },
+      { id: "member", name: "Duplicate", raHours: 0, declinationDegrees: 0, magnitude: 1 },
+    ];
+    const fixture: Constellation = {
+      id: "test", name: "Test", starIds: ["member", "missing"],
+      edges: [["member", "outside"]], labelStarId: "outside",
     };
+    const duplicateFixture = { ...fixture };
 
-    expect(catalogueIssues([invalid], stars)).toEqual([
-      "invalid: unknown member missing",
-      "invalid: edge ends outside members at also-missing",
-      "invalid: label anchor is not a member label-missing",
-      "deneb: unknown constellation tag cygnus",
-      "sadr: unknown constellation tag cygnus",
-      "albireo: unknown constellation tag cygnus",
-      "delta-cygni: unknown constellation tag cygnus",
-      "gienah: unknown constellation tag cygnus",
-    ]);
+    expect(catalogueIssues([fixture, duplicateFixture], fixtureStars)).toEqual(expect.arrayContaining([
+      "duplicate star ID member",
+      "duplicate constellation ID test",
+      "member: non-finite astronomical value",
+      "member: RA outside [0,24)",
+      "member: declination outside [-90,90]",
+      "test: unknown member missing",
+      "test: edge ends outside members at outside",
+      "test: label anchor is not a member outside",
+    ]));
   });
 
-  it("reports mismatches in either direction between star tags and member lists", () => {
-    const mismatchedStars: Star[] = [
+  it("reports mismatches in either direction using self-contained fixtures", () => {
+    const fixtureStars: Star[] = [
       { id: "member", name: "Member", raHours: 0, declinationDegrees: 0, magnitude: 1 },
       { id: "tagged", name: "Tagged", raHours: 0, declinationDegrees: 0, magnitude: 1, constellationId: "test" },
     ];
-    const mismatched: Constellation = {
-      id: "test",
-      name: "Test",
-      starIds: ["member"],
-      edges: [],
-      labelStarId: "member",
-    };
-
-    expect(catalogueIssues([mismatched], mismatchedStars)).toEqual([
+    const fixture: Constellation = { id: "test", name: "Test", starIds: ["member"], edges: [], labelStarId: "member" };
+    expect(catalogueIssues([fixture], fixtureStars)).toEqual([
       "test: member member is tagged unassigned",
       "tagged: tagged test but absent from its members",
+    ]);
+  });
+
+  it("finds a shared Riyadh post-dusk window for every pattern from June through September", () => {
+    expect(visibilityIssues(constellations, stars)).toEqual([]);
+  });
+
+  it("rejects a member deliberately moved below the useful window", () => {
+    const impossibleStars = stars.map((star) => star.id === "antares" ? { ...star, declinationDegrees: -90 } : star);
+    expect(visibilityIssues([scorpius], impossibleStars)).toEqual([
+      "scorpius: no shared >=10° window in 06",
+      "scorpius: no shared >=10° window in 07",
+      "scorpius: no shared >=10° window in 08",
+      "scorpius: no shared >=10° window in 09",
     ]);
   });
 });
 
 describe("constellation resolution", () => {
-  it("resolves known IDs and degrades overview or stale IDs to no focus", () => {
-    expect(resolveConstellation("cygnus")).toBe(cygnus);
+  it("resolves every known ID and degrades overview or stale IDs to no focus", () => {
+    for (const constellation of constellations) expect(resolveConstellation(constellation.id)).toBe(constellation);
     expect(resolveConstellation(null)).toBeNull();
     expect(resolveConstellation("stale-id")).toBeNull();
   });
