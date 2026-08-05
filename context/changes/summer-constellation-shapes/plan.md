@@ -120,3 +120,7 @@ Follow research option 2: extend the existing static catalogue with the five-pat
 ## Plan review amendments
 
 - 2026-08-05 — Fresh plan review verdict: approve-with-changes. Made the visibility audit deterministic across host timezones with explicit AST instants and a ≤15-minute sampling interval; moved duplicate/numeric catalogue validation into Phase 1; isolated negative integrity fixtures from the growing production catalogue. See `reviews/plan-review.md`.
+
+## Follow-ups
+
+- Compare the current five-star Lyra (Vega plus the four-star parallelogram) with a six-star teaching variant that adds Epsilon Lyrae. Keep the five-star shape unless a later projector/content review demonstrates that the sixth star materially improves unaided recognition.
