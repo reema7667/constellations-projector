@@ -96,7 +96,7 @@ Follow research option 2: extend the existing static catalogue with the five-pat
 
 ## Manual steps (human-gated)
 
-- [ ] Review Scorpius and Sagittarius on the target projector with lines briefly on and then off; confirm recognizable silhouettes, useful framing, and dark-room legibility. — owner: user
+- [x] Review Scorpius and Sagittarius on the target projector with lines briefly on and then off; confirm recognizable silhouettes, useful framing, and dark-room legibility. — owner: user (confirmed 2026-08-05)
 - [ ] Review Lyra and Aquila on the target projector with lines briefly on and then off; confirm recognizable silhouettes and clear selected/context separation. — owner: user
 - [ ] Browse overview and all five entries, then drag/play time; smoke-test calibration, fullscreen/projection, `H`, reload-to-overview, lines-off default, and operation with network disabled. — owner: user
 
@@ -114,8 +114,8 @@ Follow research option 2: extend the existing static catalogue with the five-pat
 
 | Phase | Status | Verified by |
 |---|---|---|
-| 1 — Southern summer silhouettes | automated done; manual pending | focused suite (15 tests), full suite (32 tests), production build; projector review pending |
-| 2 — Summer Triangle and assembled catalogue | todo | — |
+| 1 — Southern summer silhouettes | done | focused suite (15 tests), full suite (32 tests), production build; user projector sign-off 2026-08-05 |
+| 2 — Summer Triangle and assembled catalogue | automated done; manual pending | focused suite (17 tests), full suite (34 tests), production build; projector/browser review pending |
 
 ## Plan review amendments
 

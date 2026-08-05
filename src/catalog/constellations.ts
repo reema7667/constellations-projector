@@ -13,6 +13,35 @@ export const cygnus: Constellation = {
   labelStarId: "sadr",
 };
 
+export const lyra: Constellation = {
+  id: "lyra",
+  name: "Lyra",
+  starIds: ["vega", "zeta1-lyrae", "delta2-lyrae", "sulafat", "sheliak"],
+  edges: [
+    ["vega", "zeta1-lyrae"],
+    ["zeta1-lyrae", "delta2-lyrae"],
+    ["delta2-lyrae", "sulafat"],
+    ["sulafat", "sheliak"],
+    ["sheliak", "zeta1-lyrae"],
+  ],
+  labelStarId: "vega",
+};
+
+export const aquila: Constellation = {
+  id: "aquila",
+  name: "Aquila",
+  starIds: ["epsilon-aquilae", "zeta-aquilae", "tarazed", "altair", "alshain", "delta-aquilae", "lambda-aquilae"],
+  edges: [
+    ["epsilon-aquilae", "zeta-aquilae"],
+    ["zeta-aquilae", "tarazed"],
+    ["tarazed", "altair"],
+    ["altair", "alshain"],
+    ["alshain", "delta-aquilae"],
+    ["delta-aquilae", "lambda-aquilae"],
+  ],
+  labelStarId: "altair",
+};
+
 export const scorpius: Constellation = {
   id: "scorpius",
   name: "Scorpius",
@@ -51,7 +80,7 @@ export const sagittarius: Constellation = {
   labelStarId: "kaus-australis",
 };
 
-export const constellations: readonly Constellation[] = [cygnus, scorpius, sagittarius];
+export const constellations: readonly Constellation[] = [cygnus, lyra, aquila, scorpius, sagittarius];
 
 export function resolveConstellation(id: string | null): Constellation | null {
   if (id === null) return null;

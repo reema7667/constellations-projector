@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cygnus } from "../catalog/constellations";
+import { cygnus, lyra } from "../catalog/constellations";
 import { starsById } from "../catalog/stars";
 import { IDENTITY_CALIBRATION } from "./calibration";
 import { renderSky, type ProjectedStar } from "./skyRenderer";
@@ -90,5 +90,14 @@ describe("sky focus rendering", () => {
 
     expect(off.recording.strokes).toBe(0);
     expect(on.recording.strokes).toBe(1);
+  });
+
+  it("renders a non-Cygnus focus generically and skips lines with a hidden endpoint", () => {
+    const { ctx, recording } = recordingContext();
+    renderSky(ctx, 800, 600, [projected("vega"), projected("zeta1-lyrae"), projected("sheliak"), projected("sulafat", false), projected("deneb")], lyra, options);
+
+    expect(recording.fills).toEqual([theme.focused, theme.focused, theme.focused, theme.dimmed]);
+    expect(recording.strokes).toBe(2);
+    expect(recording.labels).toEqual(["Vega", "Zeta1 Lyrae", "Sheliak", "Lyra"]);
   });
 });

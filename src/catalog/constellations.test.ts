@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { starToHorizontal } from "../astronomy/coordinates";
 import { astronomyObserver } from "../astronomy/observer";
 import type { Constellation, Star } from "../types";
-import { constellations, cygnus, resolveConstellation, sagittarius, scorpius } from "./constellations";
+import { aquila, constellations, cygnus, lyra, resolveConstellation, sagittarius, scorpius } from "./constellations";
 import { stars } from "./stars";
 
 function duplicates(values: readonly string[]): string[] {
@@ -78,9 +78,20 @@ function visibilityIssues(catalogue: readonly Constellation[], starCatalogue: re
 }
 
 describe("constellation catalogue integrity", () => {
-  it("keeps the interim learning order and all production references valid", () => {
-    expect(constellations).toEqual([cygnus, scorpius, sagittarius]);
+  it("keeps the final learning order and all production references valid", () => {
+    expect(constellations).toEqual([cygnus, lyra, aquila, scorpius, sagittarius]);
+    expect(new Set(stars.map((star) => star.id)).size).toBe(stars.length);
     expect(catalogueIssues(constellations, stars)).toEqual([]);
+  });
+
+  it("keeps each Summer Triangle anchor as one physical star in its IAU constellation", () => {
+    expect(stars.filter((star) => star.id === "deneb")).toHaveLength(1);
+    expect(stars.filter((star) => star.id === "vega")).toHaveLength(1);
+    expect(stars.filter((star) => star.id === "altair")).toHaveLength(1);
+    expect(stars.find((star) => star.id === "deneb")?.constellationId).toBe("cygnus");
+    expect(stars.find((star) => star.id === "vega")?.constellationId).toBe("lyra");
+    expect(stars.find((star) => star.id === "altair")?.constellationId).toBe("aquila");
+    expect(constellations.some((constellation) => constellation.id === "summer-triangle")).toBe(false);
   });
 
   it("reports malformed values, duplicate IDs, and invalid drawing references", () => {

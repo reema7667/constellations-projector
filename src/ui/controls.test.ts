@@ -41,6 +41,8 @@ describe("constellation control model", () => {
       options: [
         { value: "", label: "Sky overview" },
         { value: "cygnus", label: "Cygnus · Northern Cross" },
+        { value: "lyra", label: "Lyra" },
+        { value: "aquila", label: "Aquila" },
         { value: "scorpius", label: "Scorpius" },
         { value: "sagittarius", label: "Sagittarius · Teapot" },
       ],
@@ -55,6 +57,8 @@ describe("constellation control model", () => {
     });
     expect(constellationIdFromControlValue("")).toBeNull();
     expect(constellationIdFromControlValue("cygnus")).toBe("cygnus");
+    expect(constellationIdFromControlValue("lyra")).toBe("lyra");
+    expect(constellationIdFromControlValue("aquila")).toBe("aquila");
     expect(constellationIdFromControlValue("scorpius")).toBe("scorpius");
     expect(constellationIdFromControlValue("sagittarius")).toBe("sagittarius");
   });
