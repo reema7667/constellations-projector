@@ -54,4 +54,11 @@ describe("constellation control model", () => {
     expect(constellationIdFromControlValue("")).toBeNull();
     expect(constellationIdFromControlValue("cygnus")).toBe("cygnus");
   });
+
+  it("treats a stale selected ID as overview", () => {
+    expect(constellationControlModel({ selectedConstellationId: "stale-id" }, constellations)).toMatchObject({
+      selectedValue: "",
+      dimContextDisabled: true,
+    });
+  });
 });

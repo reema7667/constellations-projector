@@ -29,7 +29,7 @@ The app opens to an unfocused sky overview with constellation lines off. The con
 
 ## Approach
 
-Follow research option 2: introduce the minimum generic single-selection seam around Cygnus while keeping the existing Canvas, state-patch, controls, and animation patterns. Make `Constellation.starIds` the sole membership authority used for lines, styling, and labels; expose the current catalogue as the one-entry collection used immediately by the selector. Represent overview as `selectedConstellationId: null`; a dedicated selection action atomically selects Cygnus and enables contextual dimming, while choosing overview clears both. The user confirmed that the app must start unfocused and require an explicit Cygnus choice.
+Follow research option 2: introduce the minimum generic single-selection seam around Cygnus while keeping the existing Canvas, state-patch, controls, and animation patterns. Use `Constellation.starIds` for the active drawn shape and preserve `Star.constellationId` for star-level lookup, with bidirectional catalogue tests keeping them consistent; expose the current catalogue as the one-entry collection used immediately by the selector. Represent overview as `selectedConstellationId: null`; a dedicated selection action atomically selects Cygnus and enables contextual dimming, while choosing overview clears both. The user confirmed that the app must start unfocused and require an explicit Cygnus choice.
 
 ## Critical implementation details
 
@@ -68,6 +68,16 @@ Follow research option 2: introduce the minimum generic single-selection seam ar
 - Verify (automated): `npm run test:run -- src/catalog/constellations.test.ts src/state/appState.test.ts src/ui/controls.test.ts src/rendering/skyRenderer.test.ts`; `npm run test:run`; `npm run build`
 - Verify (manual): in the target browser, confirm startup shows an unfocused, undimmed sky with no constellation lines; choosing Cygnus brightens its five members, dims unrelated stars, and preserves optional line/label toggles; returning to overview restores the undimmed sky. Then drag the time slider and play through time to confirm the same selected stars move together without slider interruption. — owner: user
 - Notes: selection is a discrete control change, so the existing full control remount is acceptable. Do not persist it or alter `storage/settings.ts`.
+
+### Phase 3 — Normalize stale focus at the controls boundary
+
+- Files: `src/ui/controls.ts`, `src/ui/controls.test.ts`
+- Change:
+  - Resolve the control's selected value against the supplied constellation catalogue. Treat an unknown/stale ID exactly like overview: select the overview option and disable contextual dimming.
+  - Add a regression test that supplies a stale ID and proves the controls agree with the renderer's existing stale-ID-to-overview fallback.
+- Verify (automated): `npm run test:run -- src/ui/controls.test.ts`; `npm run test:run`; `npm run build`
+- Verify (manual): covered by the existing Phase 2 overview → Cygnus → overview and reload checks.
+- Notes: this phase remediates the implementation review finding without changing state persistence or accepting stale IDs as valid selections.
 
 ## Success criteria
 
@@ -114,8 +124,10 @@ Follow research option 2: introduce the minimum generic single-selection seam ar
 |---|---|---|
 | 1 — Canonical nullable focus renderer | done | `npm run test:run -- src/catalog/constellations.test.ts src/rendering/skyRenderer.test.ts src/rendering/projection.test.ts` (15/15); `npm run build` |
 | 2 — Overview-first state and controls | automated done; manual pending | `npm run test:run -- src/catalog/constellations.test.ts src/state/appState.test.ts src/ui/controls.test.ts src/rendering/skyRenderer.test.ts` (13/13); `npm run test:run` (29/29); `npm run build` |
+| 3 — Normalize stale focus at controls boundary | done | deliberate-break `npm run test:run -- src/ui/controls.test.ts` (1 expected failure before fix), then targeted suite (5/5); `npm run test:run` (30/30); `npm run build` |
 
 ## Plan review amendments
 
 - 2026-08-05 — Fresh plan review verdict: approve-with-changes. Added pure/tested control mapping and catalogue resolution seams; required known/null/unknown resolver coverage; chose native-disabled contextual dimming in overview and specified its model/interaction coverage. See `reviews/plan-review.md`.
 - 2026-08-05 — Implementation amendment confirmed by the user: preserve `Star.constellationId` for explicit catalogue lookup and enforce bidirectional consistency with `Constellation.starIds`; rendering continues to derive the selected drawn shape from the active constellation record.
+- 2026-08-05 — Implementation-review remediation: added Phase 3 to make the control model honor the already-planned stale-ID → overview invariant. See `reviews/impl-review.md`.

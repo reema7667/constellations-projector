@@ -25,13 +25,16 @@ export function constellationControlModel(
   state: Pick<AppState, "selectedConstellationId">,
   catalogue: readonly Constellation[],
 ): ConstellationControlModel {
+  const selectedConstellation = catalogue.find(
+    (constellation) => constellation.id === state.selectedConstellationId,
+  );
   return {
-    selectedValue: state.selectedConstellationId ?? "",
+    selectedValue: selectedConstellation?.id ?? "",
     options: [
       { value: "", label: "Sky overview" },
       ...catalogue.map((constellation) => ({ value: constellation.id, label: constellation.name })),
     ],
-    dimContextDisabled: state.selectedConstellationId === null,
+    dimContextDisabled: selectedConstellation === undefined,
   };
 }
 
